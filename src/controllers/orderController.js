@@ -1,56 +1,80 @@
 const { count } = require("console")
+
+const UserModel = require("../models/userModel")
+const ProductModel = require("../models/productModel")
 const OrderModel= require("../models/orderModel")
 
-const createOrder= async function (req, res) {
-    let data= req.body
-    let savedData= await OrderModel.create(data)
-    res.send({msg: savedData})
-}
 
-const getBooksData= async function (req, res) {
-    let allBooks= await OrderModel.find( {authorName : "HO" } )
-    console.log(allBooks)
-    if (allBooks.length > 0 )  res.send({msg: allBooks, condition: true})
-    else res.send({msg: "No books found" , condition: false})
-}
+const createOrder = async function (req, res) {
+    let order = req.body;
+    let userIdd = req.body.userId;
+    let productId = req.body.productId;
+    let currentDate = new Date()
+    let updatedDate = currentDate.getDate() + "/"
+        + currentDate.getMonth() + "/"
+        + currentDate.getFullYear()
 
+    if (!userIdd) {
+        return res.send("user Id must be present in the request body");
+    }
 
-const updateBooks= async function (req, res) {
-    let data = req.body // {sales: "1200"}
-    // let allBooks= await BookModel.updateMany( 
-    //     { author: "SK"} , //condition
-    //     { $set: data } //update in data
-    //  )
-    let allBooks= await OrderModel.findOneAndUpdate( 
-        { authorName: "ABC"} , //condition
-        { $set: data }, //update in data
-        { new: true , upsert: true} ,// new: true - will give you back the updated document // Upsert: it finds and updates the document but if the doc is not found(i.e it does not exist) then it creates a new document i.e UPdate Or inSERT  
-     )
-     
-     res.send( { msg: allBooks})
-}
+    let validUserId = await UserModel.findById(userIdd);
+    if (!validUserId) {
+        return res.send("no user present with the given id");
+    }
 
-const deleteBooks= async function (req, res) {
-    // let data = req.body 
-    let allBooks= await OrderModel.updateMany( 
-        { authorName: "FI"} , //condition
-        { $set: {isDeleted: true} }, //update in data
-        { new: true } ,
-     )
-     
-     res.send( { msg: allBooks})
-}
+    if (!productId) {
+        return res.send("product Id must be present in the request body");
+    }
 
 
+    let validProductId = await ProductModel.findById(productId);
+    if (!validProductId) {
+        return res.send("no product present with the given id");
+    }
 
+    let orderCreated = await OrderModel.create(order);
+    let value = req.headers["isfreeappuser"]
+    if (value == "true") {
+        let customer = await OrderModel.findOneAndUpdate(
+            { userId: userIdd },
+            { $set: { amount: 0, isFreeAppUser: true, date: updatedDate } },
+            { $new: true }
 
-// CRUD OPERATIONS:
-// CREATE
-// READ
-// UPDATE
-// DELETE
+        )
+        return res.send({ data: customer })
 
+    }
+    else {
 
+        let userBalance = await UserModel.findById(userIdd)
+        let productAmount = await ProductModel.findById(productId)
+        let pay = userBalance.balance - productAmount.price
+        if (pay >= 0) {
+            let customerOrder = await OrderModel.findOneAndUpdate(
+                { userId: userIdd },
+                { $set: { amount: productAmount.price, isFreeAppUser: true, date: updatedDate } },
+                { $new: true }
+
+            )
+            let customer = await UserModel.findOneAndUpdate(
+                { _id: userIdd },
+                { $set: { balance: pay, isFreeAppUser: true } },
+                { $new: true }
+
+            )
+            let result = {}
+            result.order = customerOrder
+            result.user = customer
+
+            return res.send({ data: result })
+        } else {
+            return res.send({ msg: "insufficient balance" })
+        }
+
+    }
+
+};
 
 module.exports.createOrder= createOrder
 module.exports.getBooksData= getBooksData
