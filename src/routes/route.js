@@ -20,6 +20,11 @@ router.get("/getBooksData", productController.getProductsData)
 // router.post("/createOrder", middleWare.falana,orederController.createOrder)
 // router.post("/deleteBooks", productController.deleteBooks)
 
+router.post("/createUser", commonMw.mid1, UserController.createUser  )
+
+router.post("/createProduct", ProductController.createProduct )
+
+router.post("/createOrder", commonMw.mid1, OrderController.createOrder  )
 //MOMENT JS
 const moment = require('moment');
 const middlewareWrapper = require('cors');
