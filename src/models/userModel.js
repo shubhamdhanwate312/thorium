@@ -18,6 +18,8 @@ const userSchema = new mongoose.Schema( {
         type:Boolean,
         default:false}, //default value is false 
     age: Number,
+    posts: {
+        type: [], deafult: []}
 }, { timestamps: true });
 
-module.exports = mongoose.model('User2', userSchema)
+module.exports = mongoose.model('Authuser', userSchema)
