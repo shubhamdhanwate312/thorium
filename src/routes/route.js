@@ -16,10 +16,10 @@ router.post("/blog",middleware.authenticate,BlogController.createblog)
 //Getblog.....
 router.get("/getblogg",middleware.authenticate,BlogController.getBlog)
 //Updateblog.....
-router.put("/updateblogg/:blogID",middleware.authenticate,middleware.authorise,BlogController.updateblog)
+router.put("/updateblogg/:blogID",middleware.authenticate,BlogController.updateblog)
 //Delete blog by ID......
-router.delete("/deleteblogg/:blogID",middleware.authenticate,middleware.authorise,BlogController.deletebyId)
+router.delete("/deleteblogg/:blogID",middleware.authenticate,BlogController.deletebyId)
 //Delete blog by Query.......
-router.delete("/deletequery",middleware.authenticate,middleware.authorise,BlogController.deletebyQuery)
+router.delete("/deletequery",middleware.authenticate,BlogController.deletebyQuery)
 
 module.exports = router;
