@@ -69,55 +69,70 @@ let getBlog = async function (req, res) {
 
 
 
-const updateblog = async function(req,res){
-    try{
-    let updateblog =req.params.blogID
-    let  = await BlogModel.findById(updateblog)
-    console.log(updateblog)
-  if (!updateblog) {
-    return res.status(404).send({msg:"Invalid Blog"})
+const updateblog = async function (req, res) {
+  try {
+    let updateblog = req.params.blogID
+    let updateAuth= await BlogModel.findById(updateblog)
+
+
+    if(req.user != updateAuth.autherID){
+      return res.status(401).send({ msg: "You are not authorised" })
+    }
+    console.log(updateAuth)
+    if (!updateAuth) {
+      return res.status(404).send({ msg: "Invalid Blog" })
+    }
+    let updatedata = req.body;
+    let updatedUser = await BlogModel.findOneAndUpdate({ _id: updateblog }, { title: updatedata.title, body: updatedata.body, tags: updatedata.tags, subcategory: updatedata.subcategory, ispublished: true }, { new: true, upsert: true });
+    return res.status(200).send({ status: true, data: updatedUser })
+  } catch (err) {
+    return res.status(500).send({ Error: err.message })
   }
-  let updatedata = req.body;
-  let updatedUser = await BlogModel.findOneAndUpdate({ _id: updateblog },{title : updatedata.title, body:updatedata.body, tags : updatedata.tags, subcategory : updatedata.subcategory,ispublished:true},{new : true, upsert : true});
-  res.status(200).send({ status: true, data: updatedUser })
-}catch(err){
-    res.status(500).send({Error : err.message})
-    }
 
 }
 
 
-const deletebyId = async function(req,res){
-    try{
-        let blogId = req.params.blogID
-        const validId = await BlogModel.findById(blogId)
-      if (!validId) {
-        return res.status(404).send({msg:"blog ID is Invalid"})
-      }
-      
-    const deleteData = await BlogModel.findOneAndUpdate({ _id:blogId },{isdeleted:true},{new : true});
-    res.status(200).send({ status:true, data:deleteData })
-}catch(err){
-    res.status(500).send({Error : err.message})
+const deletebyId = async function (req, res) {
+  try {
+    let blogId = req.params.blogID
+    const validId = await BlogModel.findById(blogId)
+
+    if(req.user != validId.autherID ){
+      return res.status(401).send({status: false, msg: "You are not authoorised"})
     }
+    console.log(validId)
+    if (!validId) {
+      return res.status(404).send({ msg: "blog ID is Invalid" })
+    }
+
+    const deleteData = await BlogModel.findOneAndUpdate({ _id: blogId }, { isdeleted: true }, { new: true });
+    console.log(deleteData)
+    return res.status(200).send({ status: true, data: deleteData })
+
+  } catch (err) {
+    return res.status(500).send({ Error: err.message })
+  }
 }
 
+const deletebyQuery = async function (req, res) {
+  try {
+    let input = req.query
 
-const deletebyQuery = async function(req,res){
-    try{  
-        let input = req.query
-        
-        if(Object.keys(input).length == 0) 
-        return res.status(400).send({status: false, msg: "please provide input data" })
-
-        let deletedBlog = await BlogModel.updateMany({ $and: [input, { isdeleted: false }] }, { $set: { isdeleted: true, deletedAt: Date.now() } }, { new: true })
-        
-        res.status(200).send({data:deletedBlog})
-
-    } catch (error) {
-        res.status(500).send({ error: error.message })
+    if(req.user != input.autherID){
+      return res.status(401).send({status:false, msg: "you are not authorised"})
     }
-} 
+    console.log(input)
+    if (Object.keys(input).length == 0)
+      return res.status(400).send({ status: false, msg: "please provide input data" })
+
+    let deletedBlog = await BlogModel.updateMany({ $and: [input, { isdeleted: false }] }, { $set: { isdeleted: true, deletedAt: Date.now() } }, { new: true })
+
+    return res.status(200).send({ data: deletedBlog })
+
+  } catch (error) {
+    return res.status(500).send({ error: error.message })
+  }
+}
 
 
 module.exports.createblog= createblog
