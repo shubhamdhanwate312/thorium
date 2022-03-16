@@ -20,6 +20,6 @@ router.put("/updateblogg/:blogID",middleware.authenticate,middleware.authorise,B
 //Delete blog by ID......
 router.delete("/deleteblogg/:blogID",middleware.authenticate,middleware.authorise,BlogController.deletebyId)
 //Delete blog by Query.......
-router.delete("/deletequery",middleware.authenticate,BlogController.deletebyQuery)
+router.delete("/deletequery",middleware.authenticate,middleware.authorise,BlogController.deletebyQuery)
 
 module.exports = router;
