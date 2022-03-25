@@ -13,7 +13,7 @@ const isValidRequestBody = function(requestBody) {
     return Object.keys(requestBody).length > 0
 }
 
-const registerUser = async function (req, res) {
+const createUser = async function (req, res) {
     try {
         const userBody = req.body;
         if(!isValidRequestBody(userBody)) {
@@ -24,10 +24,6 @@ const registerUser = async function (req, res) {
         
         if(!isValid(title)) {
             return res.status(400).send({status: false, message: 'Title is required'})
-        }
-        
-        if((userBody.title)!=( 'Mr'|| 'Mrs' || 'Miss')) {
-            return res.status(400).send({status: false, message: 'Title is not Valid'})
         }
 
         if(!isValid(name)) {
@@ -54,7 +50,8 @@ const registerUser = async function (req, res) {
             return res.status(400).send({status: false, message: 'Password is required'})
         }
         
-        if(!(/^(?=.\d)(?=(.\W){2})(?=.[a-zA-Z])(?!.\s).{1,15}$/.test(userBody.password))) {
+        if(!(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(userBody.password))) {
+            //Minimum eight characters, at least one letter, one number and one special character:
             return res.status(400).send({ status: false, message: 'Please provide a valid password'})
         }
         
@@ -73,6 +70,7 @@ const registerUser = async function (req, res) {
         const createdUser = await userModel.create(userData);
 
         return res.status(201).send({status: true, message: 'User successfully created', data: createdUser});
+    
     } catch (error) {
         return res.status(500).send({status: false, message: error.message});
     }
@@ -91,11 +89,12 @@ const loginUser = async function (req, res) {
         let passwords = req.body.password;
         if (! (/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(userName) ))
   
-        {return res.status(400).send({status:false,msg:"Please provide a valid email"})}
-  
-       if(! (/^(?=.[a-z])(?=.[A-Z])(?=.\d)[A-Za-z\d@$!%?&]{8,15}$/.test(passwords)) )
-  
-       {return res.status(400).send({status:false , msg:"Minimum eight and maximum 15 characters, at least one uppercase letter, one lowercase letter and one number "})}
+        {return res.status(400).send({status:false,msg:"Please provide a valid email"})
+      }
+
+        if(!(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(passwords))) {
+            return res.status(400).send({ status: false, message: 'Please provide a valid password'})
+        }
         
   
   
@@ -134,11 +133,7 @@ const loginUser = async function (req, res) {
   
 
   
-
 module.exports.loginUser = loginUser
-module.exports.registerUser= registerUser;
-
-
-
+module.exports.createUser= createUser;
 
 
