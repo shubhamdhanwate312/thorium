@@ -1,26 +1,27 @@
-let jwt = require('jsonwebtoken')
-const BlogModel = require("../models/blogModel")
+const jwt = require("jsonwebtoken");
 
-let authenticate = function (req, res, next) {
-  //Token authentication......
 
-  try {
-    let xAuthToken = req.headers["x-api-key"]
 
-    let decodedToken = jwt.verify(xAuthToken, 'shubham-thorium')
-    if (!decodedToken) return res.status(401).send({ status: false, msg: "token is not valid" })
+    let auth = async function(req,res,next){
 
-    // Token authorization-----------------------------
-    req.user = decodedToken.autherID        
-    next()
+        try{
+        let token = req.headers["x-api-key"]
+        if(token){
+            let decodedToken = jwt.verify(token , "Project-One" )      
+            if(decodedToken){
 
-  }
-  catch (err) {
-    console.log("This is the error :", err.message)
-    return res.status(500).send({ msg: "Error", error: err.message })
-  }
+           req.decodedToken = decodedToken
+            next()
+            
+            }
+
+        }else{ return res.status(400).send({ERROR:"Token Missing"})}   
+
+
+
+
+    }catch(err){
+        return res.status(500).send({ERROR:err.message})}
 }
-
-
-
-module.exports.authenticate = authenticate;
+   
+module.exports.auth=auth
