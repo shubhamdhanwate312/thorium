@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: String,
         required: true,
-        unique: true,
+        unique: true
     },
     email: {
         type: String,
@@ -26,8 +26,7 @@ const userSchema = new mongoose.Schema({
         reuqired: true,
         minlength: 8,
         maxlength: 15,
-
-        // minLen 8, maxLen 15
+        
     },
     address: {
         street: String,
@@ -37,5 +36,8 @@ const userSchema = new mongoose.Schema({
 
 }, { timestamp: true }
 );
+
+
 module.exports = mongoose.model('User', userSchema);
+
 

@@ -9,10 +9,17 @@ const isValid = function(value) {
     return true;
 }
 
+const isValidTitle = function(title) {
+    return ['Mr', 'Mrs', 'Miss'].indexOf(title) !== -1
+}
+
+
 const isValidRequestBody = function(requestBody) {
     return Object.keys(requestBody).length > 0
 }
 
+
+//✅ CREATE USER
 const createUser = async function (req, res) {
     try {
         const userBody = req.body;
@@ -25,6 +32,11 @@ const createUser = async function (req, res) {
         if(!isValid(title)) {
             return res.status(400).send({status: false, message: 'Title is required'})
         }
+        
+        if(!isValidTitle(title)) {
+            return res.status(400).send({status: false, message: 'Title is not Valid'})
+        }
+
 
         if(!isValid(name)) {
             return res.status(400).send({status: false, message: 'Name is required'})
@@ -49,11 +61,13 @@ const createUser = async function (req, res) {
         if(!isValid(password)) {
             return res.status(400).send({status: false, message: 'Password is required'})
         }
-        
-        if(!(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(userBody.password))) {
-            //Minimum eight characters, at least one letter, one number and one special character:
-            return res.status(400).send({ status: false, message: 'Please provide a valid password'})
-        }
+        // minumum 8 max 15 
+        if (!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{8,15}$/.test(userBody.password))) {
+
+            return res.status(400).send({ status: false, message: ' Min 1 uppercase letter,Min 1 lowercase letter,Min 1 special character,Min 1 number,Min 8 characters,Max 15 characters' })
+      
+          }
+      
         
         const duplicatePhone = await userModel.findOne({phone});
         if(duplicatePhone) {
@@ -77,63 +91,33 @@ const createUser = async function (req, res) {
 }
 
 
-
+//✅ LOGIN USER
 const loginUser = async function (req, res) {
-
     try {
-  
-      let body = req.body
-  
-      if (Object.keys(body)!=0) {
-        let userName = req.body.email;
-        let passwords = req.body.password;
-        if (! (/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(userName) ))
-  
-        {return res.status(400).send({status:false,msg:"Please provide a valid email"})
-      }
-
-        if(!(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(passwords))) {
-            return res.status(400).send({ status: false, message: 'Please provide a valid password'})
+        let userName = req.body.email
+        let password = req.body.password
+        if (!(userName && password)) {
+            res.status(400).send({ msg: "BAD REQUEST" })
+        } else {
+            let User = await userModel.findOne({ email: userName, password: password })
+            if (!User)
+                return res.status(403).send({ msg: "Cannot login as userName and password not matched" });
+            let iat= Math.floor(Date.now() / 1000)
+            let token = jwt.sign({ userId: User._id,exp: iat + (60)}, "Nasir-hussain")
+            res.setHeader("x-auth-token", token);
+            res.status(201).send({ msg: "your login is successfull", data: token })
         }
-        
-  
-  
-        let user = await userModel.findOne({ email: userName, password: passwords });
-  
-        if (!user) {
-  
-          return res.status(400).send({
-            status: false,
-            ERROR: "username or the password is not corerct",
-          });
-        }
-  
-        let token = jwt.sign(
-          {
-            userId: user._id,
-              iat: Math.floor(Date.now() / 1000),
-              exp: Math.floor(Date.now() / 1000) + 10*60*60
-            
-          }, "Thorium"
-  
-        );
-        res.status(200).setHeader("x-api-key", token);
-        return res.status(201).send({ status: "LoggedIn",message: 'Success', TOKEN: token });
-      }
-  
-      else {return res.status(400).send({ERROR:"Bad Request"}) }
-  
     }
-    catch (err) {
-      
-      return res.status(500).send({ ERROR: err.message })
-   }
-  
-  };
-  
+    catch (error) {
+        console.log("This is the error:", error.message)
+        res.status(500).send({ msg: "server error", err: error })
+    }
 
-  
+}
+
+
 module.exports.loginUser = loginUser
 module.exports.createUser= createUser;
+
 
 
