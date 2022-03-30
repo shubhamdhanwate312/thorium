@@ -1,7 +1,6 @@
 const booksModel = require("../models/bookModel");
 const userModel = require('../models/userModel');
 const reviewModel = require('../models/reviewModel');
-const ObjectId = require("mongoose").Types.ObjectId;
 
 
 const isValid = function (value) {
@@ -19,42 +18,77 @@ const isValidRequestBody = function (requestBody) {
 
 const createBook = async function (req, res) {
   try {
-
-    let data = req.body;
-    let user = data.userId
-    // const { title, category, subcategory, ISBN, excerpt, reviews, ReleasedAt } = data
-    let userValid = await userModel.find({ _id: user })
-    if (Object.keys(userValid).length === 0) {
-      return res.status(400).send({ status: false, msg: "Enter a valid userID" })
-    }
-
-    if (Object.keys(data).length != 0) {
-      if (!isValid(data.title)) { return res.status(400).send({ status: false, msg: "Title is required" }) }
-
-      if (!isValid(data.excerpt)) { return res.status(400).send({ status: false, msg: "excerpt is required" }) }
-
-      if (!isValid(data.userId)) { return res.status(400).send({ status: false, msg: "UserID is required" }) }
-
-      if (!isValid(data.ISBN)) { return res.status(400).send({ status: false, msg: "ISBN is required/unique" }) }
-
-      if (!isValid(data.category)) { return res.status(400).send({ status: false, msg: "Category is required " }) }
-
-      if (!isValid(data.subcategory)) { return res.status(400).send({ status: false, msg: "subcategory is required " }) }
-
-      if (!isValid(data.releasedAt)) { return res.status(400).send({ status: false, msg: "releasedAt is required " }) }
-
-      if (!/((\d{4}[\/-])(\d{2}[\/-])(\d{2}))/.test(data.releasedAt)) {
-        return res.status(400).send({ status: false, message: ' \"YYYY-MM-DD\" this Date format & only number format is accepted ' })
+      const bookBody = req.body
+      if(!isValidRequestBody(bookBody)) {
+          return res.status(400).send({status: false, message: 'Please provide book details'})
       }
-      let BookCreated = await booksModel.create(data);
-      return res.status(201).send({ status: true, data: BookCreated })
-    }
+
+      const { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt } = bookBody
+
+      if(!isValid(title)) {
+          return res.status(400).send({status: false, message: 'title is required'})
+      }
+
+      const duplicateTitle = await bookModel.findOne({title: title})
+
+      if(duplicateTitle) {
+          return res.status(400).send({status: false, message: 'Title already exist'})
+      }
+
+      if(!isValid(excerpt)) {
+          return res.status(400).send({status: false, message: 'excerpt is required'})
+      }
+
+      if(!isValid(userId)) {
+          return res.status(400).send({status: false, message: 'userId is required'})
+      }
+
+      if(!isValid(ISBN)) {
+          return res.status(400).send({status: false, message: 'ISBN is required'})
+      }
+
+      const duplicateISBN = await bookModel.findOne({ISBN: ISBN})
+
+      if(duplicateISBN) {
+          return res.status(400).send({status: false, message: 'ISBN already exist'})
+      }
+
+      if(!isValid(category)) {
+          return res.status(400).send({status: false, message: 'category is required'})
+      }
+
+      if(!isValid(subcategory)) {
+          return res.status(400).send({status: false, message: 'subcategory is required'})
+      }
+
+      if(!isValid(reviews)) {
+          return res.status(400).send({status: false, message: 'reviews is required'})
+      }
+
+      if(!isValid(releasedAt)) {
+          return res.status(400).send({status: false, message: 'releasedAt is required'})
+      }
+
+      if(!(/^((?:19|20)[0-9][0-9])-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])/.test(bookBody.releasedAt))) {
+          return res.status(400).send({ status: false, message: "Plz provide valid released Date" })
+        }
+      
+      const userPresent = await userModel.findById(userId)
+
+      if(!userPresent) {
+          return res.status(400).send({status: false, message: `userId ${userId} is not present`})
+      }
+
+      const reqData = { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt:moment(releasedAt) }
+
+      const bookCreated = await bookModel.create(reqData)
+      return res.status(201).send({status: true, message: 'Book Successfully Created', data: bookCreated})
+
   }
-  catch (err) {
-    return res.status(500).send({ ERROR: err.message })
+  catch(error) {
+      return res.status(500).send({status: false, error: error.message})
   }
 }
-
 
 
 //2️⃣ GET BOOKS ........

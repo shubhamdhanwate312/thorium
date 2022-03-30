@@ -16,8 +16,7 @@ const bookSchema = new mongoose.Schema({
 
     subcategory: {type:String, required:true},
 
-    reviews: {type:Number, default: 0, comment:{type:Number} },//Holds number of reviews of this book
-    //review: [{type: mongoose.Schema.Types.ObjectId, ref: 'Review'}],
+    reviews: {type:Number, default: 0, comment:{type:Number} },
     
     deletedAt: {type:Date}, 
 
@@ -31,8 +30,3 @@ const bookSchema = new mongoose.Schema({
 
 
 
-
-
-  //Note: For books without an ISBN, you can still 
-    //provide those books in the feed. They might not be surfaced to users 
-    //in Google Search. However, the following practices might help facilitate a correct match
