@@ -6,38 +6,38 @@ const UserController = require('../controllers/userController.js')
 
 const BooksController = require('../controllers/booksController')
 
-// const ReviewController = require('../controllers/reviewController')
+const ReviewController = require('../controllers/reviewController')
 
+// const { authentication, authorisation } = require('../middleWare/middleware');
 
-
-
+const middleware=require('../middleWare/middleware')
 
 //User APIs .............................................................
 
 router.post('/register', UserController.createUser);
 
-router.post('/login',UserController.loginUser)
+router.post('/login', UserController.loginUser)
 
 
 //Books API...................................................................
 
-router.post('/books', BooksController.createBook);
+router.post('/books', middleware.auth, BooksController.createBook);
 
-router.get('/books', BooksController.getbook);
+router.get('/books', middleware.auth, BooksController.getbook);
 
-router.get('/books/:bookId', BooksController.getbookdetailsById);
+router.get('/books/:bookId', middleware.auth, BooksController.getbookdetailsById);
 
-router.put('/books/:bookId', BooksController.updateById);
+router.put('/books/:bookId',middleware.auth, BooksController.updateById);
 
-router.delete('/books/:bookId', BooksController.deleteById);
+router.delete('/books/:bookId', middleware.auth, BooksController.deleteById);
 
 // Review APIs..............................................................
 
-// router.post('/books/:bookId/review', ReviewController.creatReview);
+router.post('/books/:bookId/review', ReviewController.creatReview);
 
-// router.put('/books/:bookId/review/:reviewId', ReviewController.updatebyReviewId);
+router.put('/books/:bookId/review/:reviewId', ReviewController.updatebyReviewId);
 
-// router.delete('/books/:bookId/review/:reviewId', ReviewController.deleteByReviewId);
+router.delete('/books/:bookId/review/:reviewId', ReviewController.deleteByReviewId);
 
 
 module.exports = router;
