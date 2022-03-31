@@ -25,7 +25,7 @@ const creatReview = async function (req, res) {
         if (!isValidRequestBody) {
             return res.status(400).send({ status: false, message: "please provide review data" })
         }
-        const { review, rating, reviewedAt, reviewedBy } = data
+        const { review, rating,reviewedBy } = data
         if (!isValid(rating)) return res.status(400).send({ status: false, message: "please provide review rating" })
 
 

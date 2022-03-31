@@ -25,8 +25,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         reuqired: true,
         minlength: 8,
-        maxlength: 15,
-        
+        maxlength: 15,      
     },
     address: {
         street: String,

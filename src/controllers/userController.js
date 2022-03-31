@@ -98,7 +98,7 @@ const loginUser = async function (req, res) {
   
       let body = req.body
   
-      if (Object.keys(body) != 0) {
+      if (Object.keys(body).lenght != 0) {
         let userName = req.body.email;
         let passwords = req.body.password;
         if (!(userName || passwords)) {
@@ -107,7 +107,7 @@ const loginUser = async function (req, res) {
   
         if (!(/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(userName))) { return res.status(400).send({ status: false, message: "Please provide a valid email" }) }
   
-        if (!(/^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[#$@!%&?])[A-Za-z\d#$@!%&?]{8,15}$/.test(passwords))) {
+        if (!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{8,15}$/.test(passwords))) {
   
           return res.status(400).send({ status: false, message: 'Please provide a valid password' })
   

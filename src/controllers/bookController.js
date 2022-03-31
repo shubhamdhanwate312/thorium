@@ -29,7 +29,7 @@ const createBook = async function (req, res) {
           return res.status(400).send({status: false, message: 'title is required'})
       }
 
-      const duplicateTitle = await bookModel.findOne({title: title})
+      const duplicateTitle = await booksModel.findOne({title: title})
 
       if(duplicateTitle) {
           return res.status(400).send({status: false, message: 'Title already exist'})
@@ -47,7 +47,7 @@ const createBook = async function (req, res) {
           return res.status(400).send({status: false, message: 'ISBN is required'})
       }
 
-      const duplicateISBN = await bookModel.findOne({ISBN: ISBN})
+      const duplicateISBN = await booksModel.findOne({ISBN: ISBN})
 
       if(duplicateISBN) {
           return res.status(400).send({status: false, message: 'ISBN already exist'})
@@ -61,9 +61,6 @@ const createBook = async function (req, res) {
           return res.status(400).send({status: false, message: 'subcategory is required'})
       }
 
-      if(!isValid(reviews)) {
-          return res.status(400).send({status: false, message: 'reviews is required'})
-      }
 
       if(!isValid(releasedAt)) {
           return res.status(400).send({status: false, message: 'releasedAt is required'})
@@ -79,9 +76,9 @@ const createBook = async function (req, res) {
           return res.status(400).send({status: false, message: `userId ${userId} is not present`})
       }
 
-      const reqData = { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt:moment(releasedAt) }
+      const reqData = { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt }
 
-      const bookCreated = await bookModel.create(reqData)
+      const bookCreated = await booksModel.create(reqData)
       return res.status(201).send({status: true, message: 'Book Successfully Created', data: bookCreated})
 
   }
@@ -106,14 +103,14 @@ const getbook = async function (req, res) {
     }).sort({ title: 1 })// arrange like alphabetical oreder
 
     if (Books.length === 0) {
-      return res.status(404).send({ status: true, message: "no books found." })
+      return res.status(404).send({ status: false, message: "no books found." })
     }
 
     res.status(200).send({ status: true, message: "books list", data: Books })
   }
 
   catch (err) {
-    return res.status(500).send({ status: true, ERROR: err.message })
+    return res.status(500).send({ status: false, ERROR: err.message })
 
   }
 }
@@ -257,7 +254,7 @@ const updateBook = async function (req, res) {
   }
   catch (err) {
     console.log(err)
-    res.status(500).send({ status: false, msg: err.message })
+    res.status(500).send({ status: false, message: err.message })
   }
 }
 
