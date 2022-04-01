@@ -7,12 +7,12 @@ const { authentication, authorisation,createAuthorisation } = require('../middle
 
 
 
-// User API.............
+//▶User API.............
 router.post("/registerUser", UserController.createUser);
 router.post("/loginUser", UserController.loginUser)
 
 
-//Books API..............
+//▶Books API..............
 router.post('/CreateBooks',authentication,createAuthorisation, BookController.createBook);
 router.get('/books',authentication, BookController.getbook);
 router.get('/books/:bookId',authentication, BookController.getbookdetailsById);
@@ -20,7 +20,7 @@ router.put('/books/:bookId',authentication,authorisation, BookController.updateB
 router.delete('/books/:bookId',authentication,authorisation, BookController.deleteById);
 
 
-//Review API.............
+//▶Review API.............
 router.post('/books/:bookId/review', ReviewController.creatReview);
 router.put('/books/:bookId/review/:reviewId', ReviewController.updatebyReviewId);
 router.delete('/books/:bookId/review/:reviewId', ReviewController.deleteByReviewId);

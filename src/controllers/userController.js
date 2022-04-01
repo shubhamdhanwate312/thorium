@@ -96,7 +96,7 @@ const loginUser = async function (req, res) {
 
     try {
   
-      let body = req.body
+      let body = req.body;
   
       if (Object.keys(body).lenght != 0) {
         let userName = req.body.email;
@@ -133,7 +133,7 @@ const loginUser = async function (req, res) {
           }, "TmySecretK#key...$$@@"
   
         );
-        console.log(token);
+        
         res.status(200).setHeader("x-api-key", token);
         return res.status(201).send({ status: "LoggedIn", message: 'Success', TOKEN: token });
       }

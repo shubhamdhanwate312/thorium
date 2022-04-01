@@ -6,13 +6,13 @@ const booksModel = require("../models/bookModel");
 const authentication = (req, res, next) => {
     try {
         let token = req.headers["x-api-key"]
-        if (!token) return res.status(400).send({status: false, msg:"token must be present"});
+        if (!token) return res.status(400).send({status: false, message:"token must be present"});
         let decodedToken = jwt.verify(token, "TmySecretK#key...$$@@");
         if (!decodedToken) return res.status(401).send("token invalid")
         next()
     }
     catch (err) {
-        res.status(500).send({ status: false, msg: err.message })
+        res.status(500).send({ status: false, message: err.message })
     }
 }
 
@@ -20,7 +20,6 @@ const authentication = (req, res, next) => {
 // Create Authorisation ✅
 const createAuthorisation = (req,res, next)=> {
     try{
-
         const data = req.body
         const userid = data.userId
     
@@ -38,16 +37,16 @@ const createAuthorisation = (req,res, next)=> {
     }
 }
 
-
+// Create Authorisation ✅
 const authorisation = async function (req, res, next) {
     const token = req.headers['x-api-key']
 
-    const verifyToken = jwt.verify(token, "mySecretK#key...$$@@")
+    const verifyToken = jwt.verify(token, "TmySecretK#key...$$@@")
 
     const userIdByToken = verifyToken.userId 
     const id = req.params.bookId
     let Doc = await booksModel.findById(id)
-    console.log(Doc)
+ 
 
     const DocId = Doc.userId
     if(!DocId){
