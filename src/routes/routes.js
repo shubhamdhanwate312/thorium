@@ -3,27 +3,26 @@ const router = express.Router();
 const UserController = require("../controllers/userController")
 const BookController = require("../controllers/bookController")
 const ReviewController = require("../controllers/reviewcontroller")
-const { authentication, authorisation,createAuthorisation } = require('../middleware/auth');
-
+const { authentication, authorisation} = require('../middleware/auth');
 
 
 //▶User API.............
-router.post("/registerUser", UserController.createUser);
-router.post("/loginUser", UserController.loginUser)
+router.post("/register", UserController.createUser);
+router.post("/login", UserController.loginUser)
 
 
-//▶Books API..............
-router.post('/CreateBooks',authentication,createAuthorisation, BookController.createBook);
-router.get('/books',authentication, BookController.getbook);
-router.get('/books/:bookId',authentication, BookController.getbookdetailsById);
+//▶Book API..............
+router.post('/books',authentication, BookController.createBook);
+router.get('/books',authentication, BookController.getBooks);
+router.get('/books/:bookId',authentication, BookController.getBookById);
 router.put('/books/:bookId',authentication,authorisation, BookController.updateBook);
-router.delete('/books/:bookId',authentication,authorisation, BookController.deleteById);
+router.delete('/books/:bookId',authentication,authorisation, BookController.deleteBookById);
 
 
 //▶Review API.............
-router.post('/books/:bookId/review', ReviewController.creatReview);
-router.put('/books/:bookId/review/:reviewId', ReviewController.updatebyReviewId);
-router.delete('/books/:bookId/review/:reviewId', ReviewController.deleteByReviewId);
+router.post('/books/:bookId/review', ReviewController.createReview);
+router.put('/books/:bookId/review/:reviewId', ReviewController.updateReviews);
+router.delete('/books/:bookId/review/:reviewId', ReviewController.deleteReviewById);
 
 
 module.exports = router;

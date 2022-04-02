@@ -94,59 +94,56 @@ const createUser = async function (req, res) {
 
 const loginUser = async function (req, res) {
 
-    try {
-  
-      let body = req.body;
-  
-      if (Object.keys(body).lenght != 0) {
-        let userName = req.body.email;
-        let passwords = req.body.password;
-        if (!(userName || passwords)) {
-          return res.status(400).send({ status: false, message: "user does not exit" })
-        }
-  
-        if (!(/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(userName))) { return res.status(400).send({ status: false, message: "Please provide a valid email" }) }
-  
-        if (!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{8,15}$/.test(passwords))) {
-  
-          return res.status(400).send({ status: false, message: 'Please provide a valid password' })
-  
-        }
-  
-  
-        let user = await userModel.findOne({ email: userName, password: passwords });
-  
-        if (!user) {
-  
-          return res.status(400).send({
-            status: false,
-            ERROR: "username or the password is not corerct",
-          });
-        }
-  
-        let token = jwt.sign(
-          {
-            userId: user._id,
-            iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 60 * 60
-  
-          }, "TmySecretK#key...$$@@"
-  
-        );
-        
-        res.status(200).setHeader("x-api-key", token);
-        return res.status(201).send({ status: "LoggedIn", message: 'Success', TOKEN: token });
+  try {
+
+    let data = req.body
+       if(Object.keys(data).length == 0){
+         return res.status(400).send({ status: false, message: "provide the details" })
       }
-  
-      else { return res.status(400).send({ ERROR: "Bad Request" }) }
-  
+      const{email,password}=data
+
+      if (!isValid(email)) {
+        return res.status(400).send({ status: false, message: "email is required" })
+      }
+      if (!isValid(password)) {
+        return res.status(400).send({ status: false, message: "passwords is required" })
+      }
+      if (!(/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(email))) { return res.status(400).send({ status: false, message: "Please provide a valid email" }) }
+
+      if (!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{8,15}$/.test(password))) {
+        return res.status(400).send({ status: false, message: 'Please provide a valid password' })
+
+      }
+
+      let user = await userModel.findOne({ email, password });
+
+      if (!user) {
+
+        return res.status(400).send({
+          status: false,
+          ERROR: "username or the password is not corerct",
+        });
+      }
+
+      let token = jwt.sign(
+        {
+          userId: user._id,
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + 60 * 60
+
+        }, "mySecretK#key...$$@@"
+
+      );
+      console.log(token);
+      res.status(200).setHeader("x-api-key", token);
+      return res.status(201).send({ status: "LoggedIn", message: 'Success', TOKEN: token });
     }
-    catch (err) {
-  
-      return res.status(500).send({ ERROR: err.message })
-    }
-  
-  };
+  catch (err) {
+
+    return res.status(500).send({ ERROR: err.message })
+  }
+
+};
 
 module.exports.loginUser = loginUser
 module.exports.createUser = createUser;
