@@ -2,7 +2,7 @@ const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
 const reviewModel = require('../models/reviewModel')
 const moment = require("moment")
-
+const aws = require('../AWS/aws')
 const isValid = function (value) {
   if (typeof value === 'undefined' || value === null) return false
   if (typeof value === 'string' && value.trim().length === 0) return false
@@ -76,6 +76,21 @@ const createBook = async function (req, res) {
 
     const reqData = { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt: moment(releasedAt) }
 
+    const files = req.files;
+    if (files) {
+        const uploadedFiles = [];  
+        for(const file of files){
+            const fileRes = await aws.uploadFile(file); 
+            uploadedFiles.push(fileRes.Location);
+        }
+        bookBody.bookCover = uploadedFiles;
+        const insertRes = await bookModel.create(bookBody);
+        return res.status(201).send({
+            status: true,
+            message: 'Book created successfully !',
+            data: insertRes
+        });
+    }
 
     const newBook = await bookModel.create(reqData)
     return res.status(201).send({ status: true, data: newBook, message: "book created successfully" })
