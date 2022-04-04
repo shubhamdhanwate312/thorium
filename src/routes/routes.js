@@ -1,6 +1,6 @@
-const express = require('express')
-const router = express.Router()
-const urlController = require('../controllers/urlController')
+const express = require('express');
+const router = express.Router();
+const urlController = require("../controllers/urlController")
 
 //testing
 router.get("/test-me", function (req, res) {
@@ -10,7 +10,6 @@ router.get("/test-me", function (req, res) {
 //url shortner
 router.post("/url/shorten", urlController.urlShortner)
 
-//get url
-router.get("/:urlCode", urlController);
+
 
 module.exports = router;

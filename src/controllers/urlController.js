@@ -1,5 +1,5 @@
-const urlModel = require('../model/model')
-const validUrl = require('valid-url')
+const urlModel = require('../models/urlModel')
+// const validUrl = require('valid-url')
 // const isValid = function(value){
 //     if(typeof value === 'undefined' || value === null ) return false
 //     return true;
@@ -12,10 +12,10 @@ const urlShortner=async function(req,res){
         if(Object.keys(data).length===0){
             return res.status(400).send({status:false, message: "please provide data"})
         }
-        if (validUrl.data()){
-        } else {
-            console.log('Not a URI');
-        }
+        // if (validUrl.data()){
+        // } else {
+        //     console.log('Not a URI');
+        // }
         
         
 
@@ -30,29 +30,3 @@ const urlShortner=async function(req,res){
 
 
 module.exports.urlShortner= urlShortner;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

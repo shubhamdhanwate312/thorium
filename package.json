@@ -1,25 +1,16 @@
 {
-  "name": "project4",
+  "name": "new-folder-(5)",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/index"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nasrihussain/project4.git"
+    "start": "nodemon src/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/nasrihussain/project4/issues"
-  },
-  "homepage": "https://github.com/nasrihussain/project4#readme",
   "dependencies": {
-    "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "express": "^4.17.3",
     "mongoose": "^6.2.9",
