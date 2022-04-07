@@ -1,13 +1,13 @@
-const mongoose = require('mongoose')
-
+const mongoose = require('mongoose');
+const version = require('nodemon/lib/version');
 
 const urlSchema = new mongoose.Schema({
     
     urlCode: {
         type: String,
-        require: true,
         lowercase: true,
-        trim: true
+        trim: true,
+       
     },
     longUrl: {
         type: String,
@@ -16,10 +16,10 @@ const urlSchema = new mongoose.Schema({
     },
     shortUrl: {
         type: String,
-        unique: true
+       unique:true
     },
 
-}, { timestamps: true });
+});
 
 
 
