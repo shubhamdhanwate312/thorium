@@ -41,16 +41,23 @@ const isValid = function (value) {
 
 const CreaturlShortner = async function (req, res) {
     try {
+
         const longUrl = req.body.longUrl
 
-        if (Object.keys(longUrl).length === 0) { return res.status(400).send({ status: false, message: "please input Some data" }) }
+        if (Object.keys(req.body).length == 0) {
+            return res.status(400).send({ Status: false, msg: "Provide input" })
+        }
 
+        if (!isValid(longUrl)) {
+            return res.status(400).send({ Status: false, ERROR: "Please provide a url field and enter url" })
+        }
         if (!(/(:?^((https|http|HTTP|HTTPS){1}:\/\/)(([w]{3})[\.]{1})?([a-zA-Z0-9]{1,}[\.])[\w]*((\/){1}([\w@?^=%&amp;~+#-_.]+))*)$/.test(longUrl.trim()))) {
 
             return res.status(400).send({ status: false, message: "please provide valid URL" })
 
         }
         const myUrl = 'http:localhost:3000'
+
 
         const urlCode = shortid.generate().toLowerCase()
 
@@ -71,7 +78,7 @@ const CreaturlShortner = async function (req, res) {
 
                 console.log(shortUrl)
 
-                url = await urlModel.create({
+                let url = await urlModel.create({
                     urlCode,
                     longUrl,
                     shortUrl
@@ -100,34 +107,40 @@ const CreaturlShortner = async function (req, res) {
 
 let geturlcode = async function (req, res) {
     try {
-        let urlCode = req.params.urlCode;
-        if (!isValid(urlCode)) {
-            return res.status(400).send({ status: false, msg: "not valid urlCode" });
-        }
-        let cachedData = await GET_ASYNC(`${req.params.urlCode}`);
-        console.log(cachedData)
-        if (cachedData) {
-            const data = JSON.parse(cachedData)
 
-            return res.status(302).redirect(data.longUrl)
+        const urlCode = req.params.urlCode;
+
+        if (!/^(?=.*[a-zA-Z].*)[a-zA-Z\d!@#-_$%&*]{8,}$/.test(urlCode)) {
+            return res.status(400).send({ status: false, message: " enter a valid urlCode" });
         }
 
-        else {
-            let fetchUrl = await urlModel.findOne({ urlCode })
-            await SET_ASYNC(`${urlCode}`, JSON.stringify(fetchUrl))
-            console.log(fetchUrl)
-            if (!fetchUrl) {
-                return res.status(404).send({ status: false, msg: " this urlCode not found" });
+        // First lets check inside cache memory
+        const checkCache = await GET_ASYNC(urlCode);
+        console.log(checkCache)
+        if (checkCache) {
+            return res.status(302).redirect(checkCache);
+        } else {
+            const getUrlCode = await urlModel.findOne({ urlCode });
+
+            if (!getUrlCode) {
+                return res.status(404).send({ status: false, message: "no such url exist" });
             }
+
+
+            const addCache = SET_ASYNC(
+                getUrlCode.longUrl,
+                urlCode
+            ); if (!addCache) {
+                return res.status(404).send({ status: false, message: "no such url exist" });
+            }
+
+            // if we found the document by urlCode then redirecting the user to original url
+            return res.status(302).redirect(getUrlCode.longUrl);
         }
-        res.status(302).redirect(fetchUrl.longUrl);
-
+    } catch (err) {
+        res.status(500).send({ error: err.message });
     }
-    catch (err) {
-        return res.status(500).send({ status: false, err: err.message })
-    }
-}
-
+};
 
 module.exports = { CreaturlShortner, geturlcode }
-
+ 
