@@ -1,5 +1,5 @@
 const urlModel = require('../models/urlModel')
-const validUrl = require('valid-url')
+
 const shortid = require('shortid')
 const redis = require("redis");
 
@@ -45,35 +45,27 @@ const CreaturlShortner = async function (req, res) {
         const longUrl = req.body.longUrl
 
         if (Object.keys(req.body).length == 0) {
-            return res.status(400).send({ Status: false, msg: "Provide input" })
+            return res.status(400).send({ Status: false, message: "Provide input some data" })
         }
 
         if (!isValid(longUrl)) {
-            return res.status(400).send({ Status: false, ERROR: "Please provide a url field and enter url" })
+            return res.status(400).send({ Status: false, message: " provide a url field and enter url" })
         }
         if (!(/(:?^((https|http|HTTP|HTTPS){1}:\/\/)(([w]{3})[\.]{1})?([a-zA-Z0-9]{1,}[\.])[\w]*((\/){1}([\w@?^=%&amp;~+#-_.]+))*)$/.test(longUrl.trim()))) {
 
             return res.status(400).send({ status: false, message: "please provide valid URL" })
 
         }
-        const myUrl = 'http:localhost:3000'
-
-
-        const urlCode = shortid.generate().toLowerCase()
-
-        const uRl = await GET_ASYNC(`${longUrl}`)
-        console.log(uRl)
-        if (validUrl.isUri(longUrl)) {
-
-
-            let url = await urlModel.findOne({ longUrl }).select({ _id: 0, __v: 0, createdAt: 0, updatedAt: 0 })
-
+       let url = await urlModel.findOne({ longUrl }).select({ _id: 0, __v: 0 })
+            const uRl = await GET_ASYNC(`${longUrl}`)
+            console.log(uRl)
             if (url) {
                 await SET_ASYNC(`${longUrl}`, JSON.stringify(url))
                 res.status(200).send({ status: true, data: url })
             }
             else {
-
+                const myUrl = 'http:localhost:3000'
+                const urlCode = shortid.generate().toLowerCase()
                 const shortUrl = myUrl + '/' + urlCode
 
                 console.log(shortUrl)
@@ -95,7 +87,7 @@ const CreaturlShortner = async function (req, res) {
                 }
                 return res.status(201).send({ status: true, data: result })
             }
-        }
+       
     }
     catch (err) {
         return res.status(500).send({ status: false, err: err.message })
@@ -114,27 +106,21 @@ let geturlcode = async function (req, res) {
             return res.status(400).send({ status: false, message: " enter a valid urlCode" });
         }
 
-        // First lets check inside cache memory
+        
         const checkCache = await GET_ASYNC(urlCode);
-        console.log(checkCache)
+       
         if (checkCache) {
             return res.status(302).redirect(checkCache);
         } else {
             const getUrlCode = await urlModel.findOne({ urlCode });
 
             if (!getUrlCode) {
-                return res.status(404).send({ status: false, message: "no such url exist" });
+                return res.status(404).send({ status: false, message: "no such url exist in DB" });
             }
 
 
-            const addCache = SET_ASYNC(
-                getUrlCode.longUrl,
-                urlCode
-            ); if (!addCache) {
-                return res.status(404).send({ status: false, message: "no such url exist" });
-            }
-
-            // if we found the document by urlCode then redirecting the user to original url
+           await  SET_ASYNC( getUrlCode.longUrl, urlCode ); 
+           
             return res.status(302).redirect(getUrlCode.longUrl);
         }
     } catch (err) {

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const version = require('nodemon/lib/version');
+
 
 const urlSchema = new mongoose.Schema({
     
@@ -7,6 +7,7 @@ const urlSchema = new mongoose.Schema({
         type: String,
         lowercase: true,
         trim: true,
+        unique:true
        
     },
     longUrl: {
